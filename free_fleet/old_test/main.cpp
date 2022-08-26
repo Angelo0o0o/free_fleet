@@ -13,28 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
+*/
 
+#define CATCH_CONFIG_MAIN
 #include <rmf_utils/catch.hpp>
 
-#include <free_fleet/client/Client.hpp>
-
-#include "mock_Middleware.hpp"
-#include "mock_StateMonitor.hpp"
-
-SCENARIO("Verify that a Client can be created")
-{
-  using namespace free_fleet;
-
-  std::unique_ptr<StateMonitor> sm(new MockStateMonitor());
-  std::unique_ptr<transport::Middleware> m(new transport::MockMiddleware());
-
-  GIVEN("Valid client")
-  {
-    auto client = free_fleet::Client::make(
-      "mock_client",
-      std::move(sm),
-      std::move(m));
-    CHECK(client);
-  }
-}
+// This will create the main(int argc, char* argv[]) entry point for testing

@@ -5,16 +5,21 @@
   <description>Free Fleet client and manager library</description>
   <maintainer email="morgan@openrobotics.org">Morgan Quigley</maintainer>
   <maintainer email="aaron@openrobotics.org">Aaron Chong</maintainer>
-  <license>Apache 2.0</license>
+  <license>Apache License 2.0</license>
   
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>eigen</depend>
   <depend>rmf_utils</depend>
   <depend>rmf_traffic</depend>
-  <depend>eigen</depend>
+  <depend>rmf_api_msgs</depend>
+  <depend>nlohmann-json-dev</depend>
+  <depend>nlohmann_json_schema_validator_vendor</depend>
 
   <test_depend>ament_cmake_catch2</test_depend>
-  <test_depend>rmf_cmake_uncrustify</test_depend>
+  <test_depend>ament_cmake_uncrustify</test_depend>
 
   <export>
-    <build_type>cmake</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

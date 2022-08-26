@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7.0)
 project(free_fleet VERSION 0.1.0 LANGUAGES C CXX)
 
-# Default to C++14
+# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
@@ -21,18 +21,27 @@ endif()
 
 include(GNUInstallDirs)
 
-find_package(rmf_utils REQUIRED)
-find_package(rmf_traffic REQUIRED)
+find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(Threads REQUIRED)
+
+set(dep_pkgs
+  Threads
+  rmf_utils
+  rmf_api_msgs
+  nlohmann_json
+  nlohmann_json_schema_validator_vendor
+)
+foreach(pkg ${dep_pkgs})
+  find_package(${pkg} REQUIRED)
+endforeach()
 
 file(GLOB lib_srcs
   "src/*.cpp"
   "src/client/*.cpp"
-  "src/manager/*.cpp"
-  "src/messages/*.cpp"
-  "src/manager/requests/*.cpp"
-  "src/manager/utilities/*.cpp"
+  # "src/manager/*.cpp"
+  # "src/messages/*.cpp"
+  # "src/manager/requests/*.cpp"
+  # "src/manager/utilities/*.cpp"
 )
 
 add_library(free_fleet SHARED
@@ -40,21 +49,29 @@ add_library(free_fleet SHARED
 )
 
 target_link_libraries(free_fleet
-  rmf_traffic::rmf_traffic
-  rmf_utils::rmf_utils
-  Threads::Threads
+  PUBLIC
+    rmf_api_msgs::rmf_api_msgs
+    # rmf_traffic::rmf_traffic
+    rmf_utils::rmf_utils
+    Threads::Threads
+    nlohmann_json::nlohmann_json
+    nlohmann_json_schema_validator
 )
 
 target_include_directories(free_fleet
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+    ${rmf_api_msgs_INCLUDE_DIRS}
+    ${nlohmann_json_schema_validator_INCLUDE_DIRS}
 )
 
 # Tests
-find_package(ament_cmake_catch2 QUIET)
-find_package(rmf_cmake_uncrustify QUIET)
-if (BUILD_TESTING AND ament_cmake_catch2_FOUND AND rmf_cmake_uncrustify_FOUND)
+if (BUILD_TESTING)
+  find_package(ament_cmake_catch2 REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+
   file(GLOB_RECURSE unit_test_srcs "test/*.cpp")
 
   ament_add_catch2(
@@ -63,7 +80,7 @@ if (BUILD_TESTING AND ament_cmake_catch2_FOUND AND rmf_cmake_uncrustify_FOUND)
   target_link_libraries(test_free_fleet
     free_fleet
     rmf_utils::rmf_utils
-    rmf_traffic::rmf_traffic
+    # rmf_traffic::rmf_traffic
   )
   target_include_directories(test_free_fleet
     PRIVATE
@@ -74,62 +91,28 @@ if (BUILD_TESTING AND ament_cmake_catch2_FOUND AND rmf_cmake_uncrustify_FOUND)
     NAMES "rmf_code_style.cfg"
     PATHS "${rmf_utils_DIR}/../../../share/rmf_utils/")
 
-  rmf_uncrustify(
-    ARGN include src test
+  ament_uncrustify(
+    include src test
     CONFIG_FILE ${uncrustify_config_file}
     MAX_LINE_LENGTH 80
   )
 endif()
 
-# Create cmake config files
-include(CMakePackageConfigHelpers)
+ament_export_targets(free_fleet HAS_LIBRARY_TARGET)
+ament_export_dependencies(${dep_pkgs})
 
-set(INSTALL_CONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/free_fleet/cmake")
-set(PACKAGE_CONFIG_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/free_fleet-config-version.cmake")
-set(PACKAGE_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/free_fleet-config.cmake")
-
-configure_package_config_file(
-  "${CMAKE_CURRENT_LIST_DIR}/cmake/free_fleet-config.cmake.in"
-  ${PACKAGE_CONFIG_FILE}
-  INSTALL_DESTINATION ${INSTALL_CONFIG_DIR}
-)
-
-write_basic_package_version_file(
-  ${PACKAGE_CONFIG_VERSION_FILE}
-  COMPATIBILITY ExactVersion
+install(
+  DIRECTORY include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(
-  TARGETS free_fleet
-  EXPORT  free_fleet-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  TARGETS
+    free_fleet
+  EXPORT free_fleet
+  RUNTIME DESTINATION lib/free_fleet
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )
 
-install(
-  DIRECTORY include/free_fleet
-  DESTINATION include
-)
-
-install(
-  FILES
-    ${PACKAGE_CONFIG_VERSION_FILE}
-    ${PACKAGE_CONFIG_FILE}
-  DESTINATION ${INSTALL_CONFIG_DIR}
-)
-
-install(
-  EXPORT free_fleet-targets
-  FILE free_fleet-targets.cmake
-  NAMESPACE free_fleet::
-  DESTINATION ${INSTALL_CONFIG_DIR}
-)
-
-export(
-  EXPORT free_fleet-targets
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/free_fleet-targets.cmake
-  NAMESPACE free_fleet::
-)
-
-export(PACKAGE free_fleet)
+ament_package()

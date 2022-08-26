@@ -15,26 +15,26 @@
  *
  */
 
-#include <rmf_utils/catch.hpp>
+#ifndef INCLUDE__FREE_FLEET__CLIENT__STATEMONITOR_HPP
+#define INCLUDE__FREE_FLEET__CLIENT__STATEMONITOR_HPP
 
-#include <free_fleet/client/Client.hpp>
+#include <string>
+#include <optional>
 
-#include "mock_Middleware.hpp"
-#include "mock_StateMonitor.hpp"
+#include <nlohmann/json.hpp>
+#include <nlohmann/json-schema.hpp>
 
-SCENARIO("Verify that a Client can be created")
+namespace free_fleet {
+
+class StateMonitor
 {
-  using namespace free_fleet;
+public:
 
-  std::unique_ptr<StateMonitor> sm(new MockStateMonitor());
-  std::unique_ptr<transport::Middleware> m(new transport::MockMiddleware());
+  virtual bool current_state(
+    nlohmann::json& state,
+    std::string& error) const = 0;
+};
 
-  GIVEN("Valid client")
-  {
-    auto client = free_fleet::Client::make(
-      "mock_client",
-      std::move(sm),
-      std::move(m));
-    CHECK(client);
-  }
-}
+} // namespace free_fleet
+
+#endif // INCLUDE__FREE_FLEET__CLIENT__STATEMONITOR_HPP
