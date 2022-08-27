@@ -26,7 +26,7 @@
 namespace free_fleet {
 namespace transport {
 
-class MqttMiddleware: public Middleware
+class MqttMiddleware : public Middleware
 {
 public:
 
@@ -43,6 +43,8 @@ public:
     const std::string& topic,
     std::function<void(const std::string& payload)> callback,
     std::string& error) final;
+
+  ~MqttMiddleware();
 
   class Implementation;
 private:

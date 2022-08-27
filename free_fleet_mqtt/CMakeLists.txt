@@ -41,11 +41,10 @@ add_library(free_fleet_mqtt SHARED
 )
 
 target_link_libraries(free_fleet_mqtt
-  PRIVATE
-    rmf_utils::rmf_utils
-    free_fleet::free_fleet
-    paho-mqttpp3
-    paho-mqtt3as
+  rmf_utils::rmf_utils
+  free_fleet::free_fleet
+  paho-mqttpp3
+  paho-mqtt3as
 )
 
 target_include_directories(free_fleet_mqtt
@@ -54,61 +53,51 @@ target_include_directories(free_fleet_mqtt
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-add_executable(test_mqtt test/async_publish.cpp)
-target_link_libraries(test_mqtt
-  PRIVATE
-    # rmf_utils::rmf_utils
-    free_fleet::free_fleet
-    paho-mqttpp3
-    paho-mqtt3as
+# Tests
+if (BUILD_TESTING)
+  find_package(ament_cmake_catch2 REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+
+  file(GLOB_RECURSE unit_test_srcs "test/*.cpp")
+
+  ament_add_catch2(
+    test_free_fleet_mqtt test/main.cpp ${unit_test_srcs}
+    TIMEOUT 300)
+  target_link_libraries(test_free_fleet_mqtt
+    free_fleet_mqtt
+    rmf_utils::rmf_utils
+  )
+  target_include_directories(test_free_fleet_mqtt
+    PRIVATE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
+  )
+
+  find_file(uncrustify_config_file
+    NAMES "rmf_code_style.cfg"
+    PATHS "${rmf_utils_DIR}/../../../share/rmf_utils/")
+
+  ament_uncrustify(
+    include src test
+    CONFIG_FILE ${uncrustify_config_file}
+    MAX_LINE_LENGTH 80
+  )
+endif()
+
+ament_export_targets(free_fleet_mqtt HAS_LIBRARY_TARGET)
+ament_export_dependencies(${dep_pkgs})
+
+install(
+  DIRECTORY include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-# # Tests
-# if (BUILD_TESTING)
-#   find_package(ament_cmake_catch2 REQUIRED)
-#   find_package(ament_cmake_uncrustify REQUIRED)
-
-#   file(GLOB_RECURSE unit_test_srcs "test/*.cpp")
-
-#   ament_add_catch2(
-#     test_free_fleet test/main.cpp ${unit_test_srcs}
-#     TIMEOUT 300)
-#   target_link_libraries(test_free_fleet
-#     free_fleet
-#     rmf_utils::rmf_utils
-#     # rmf_traffic::rmf_traffic
-#   )
-#   target_include_directories(test_free_fleet
-#     PRIVATE
-#       $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-#   )
-
-#   find_file(uncrustify_config_file
-#     NAMES "rmf_code_style.cfg"
-#     PATHS "${rmf_utils_DIR}/../../../share/rmf_utils/")
-
-#   ament_uncrustify(
-#     include src test
-#     CONFIG_FILE ${uncrustify_config_file}
-#     MAX_LINE_LENGTH 80
-#   )
-# endif()
-
-# ament_export_targets(free_fleet_mqtt HAS_LIBRARY_TARGET)
-# ament_export_dependencies(${dep_pkgs})
-
-# install(
-#   DIRECTORY include/
-#   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-# )
-
-# install(
-#   TARGETS
-#     free_fleet_mqtt
-#   EXPORT free_fleet_mqtt
-#   RUNTIME DESTINATION lib/free_fleet_mqtt
-#   LIBRARY DESTINATION lib
-#   ARCHIVE DESTINATION lib
-# )
+install(
+  TARGETS
+    free_fleet_mqtt
+  EXPORT free_fleet_mqtt
+  RUNTIME DESTINATION lib/free_fleet_mqtt
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
 
 ament_package()

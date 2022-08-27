@@ -15,23 +15,40 @@
  *
  */
 
+#include <optional>
+#include <unordered_map>
+
 #include <free_fleet/Console.hpp>
 #include <free_fleet_mqtt/MqttMiddleware.hpp>
 
 #include <mqtt/async_client.h>
 
+#include "CallbackHandler.hpp"
+
 namespace free_fleet {
 namespace transport {
 
-class MqttMiddleware::Implementation
+class MqttMiddleware::Implementation : public virtual mqtt::callback
 {
 public:
-  std::unique_ptr<mqtt::async_client> cli;
+  std::shared_ptr<mqtt::async_client> cli;
+
+  std::unique_ptr<CallbackHandler> cb_handler;
 };
 
 MqttMiddleware::MqttMiddleware()
 : _pimpl(rmf_utils::make_unique_impl<Implementation>())
-{}
+{
+}
+
+MqttMiddleware::~MqttMiddleware()
+{
+  if (_pimpl->cli->is_connected())
+  {
+    _pimpl->cli->disconnect()->wait();
+    ffinfo << "Disconnected from MQTT server.\n";
+  }
+}
 
 std::shared_ptr<MqttMiddleware> MqttMiddleware::make(
   const std::string& server_address,
@@ -41,12 +58,29 @@ std::shared_ptr<MqttMiddleware> MqttMiddleware::make(
     .clean_session(true)
     .automatic_reconnect(std::chrono::seconds(2), std::chrono::seconds(30))
     .finalize();
-  auto cli = std::make_unique<mqtt::async_client>(server_address, client_id);
-  auto rsp = cli->connect(conn_opts)->get_connect_response();
-  ffinfo << "got it!\n";
+  auto cli = std::make_shared<mqtt::async_client>(server_address, client_id);
+  auto cb_handler = std::make_unique<CallbackHandler>(cli, conn_opts);
+  cli->set_callback(*cb_handler);
+
+  try
+  {
+    if (!cli->connect(conn_opts)->wait_for(5000))
+    {
+      fferr << "Unable to connect to MQTT server: " << server_address << ".\n";
+      return nullptr;
+    }
+  }
+  catch (const mqtt::exception& exc)
+  {
+    fferr << "Unable to connect to MQTT server: " << server_address << ": "
+          << exc << ".\n";
+    return nullptr;
+  }
+  ffinfo << "Connected to MQTT server: " << server_address << ".\n";
 
   std::shared_ptr<MqttMiddleware> new_middleware(new MqttMiddleware);
   new_middleware->_pimpl->cli = std::move(cli);
+  new_middleware->_pimpl->cb_handler = std::move(cb_handler);
   return new_middleware;
 }
 
@@ -55,6 +89,8 @@ bool MqttMiddleware::publish(
   const std::string& payload,
   std::string& error)
 {
+  (void)error;
+  _pimpl->cli->publish(topic, payload, 1, false);
   return true;
 }
 
@@ -63,6 +99,14 @@ bool MqttMiddleware::subscribe(
   std::function<void(const std::string& payload)> callback,
   std::string& error)
 {
+  if (!callback)
+  {
+    error = std::string("Attempted to subscribe with nullopt callback.");
+    fferr << error << "\n";
+    return false;
+  }
+
+  _pimpl->cb_handler->add_subscription(topic, std::move(callback));
   return true;
 }
 
