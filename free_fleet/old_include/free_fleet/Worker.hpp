@@ -15,28 +15,20 @@
  *
 */
 
-#ifndef INCLUDE__FREE_FLEET__TYPES_HPP
-#define INCLUDE__FREE_FLEET__TYPES_HPP
-
-#include <cstdint>
+#ifndef INCLUDE__FREE_FLEET__WORKER_HPP
+#define INCLUDE__FREE_FLEET__WORKER_HPP
 
 namespace free_fleet {
 
-/// Commnad Ids are represented by an unsigned 32-bit integer. This means that
-/// the manager and clients can identify over 4 billion commands, which will
-/// most likely be more than each server or robot can store.
-///
-/// TODO(AA): Handle command culling or exporting in both manager and client.
-using CommandId = uint32_t;
-
-struct Location
+/// Implement this class for a generic worker that works with an Executor.
+class Worker
 {
-  std::string map_name;
-  double x;
-  double y;
-  double yaw;
+public:
+
+  /// Have this worker run it's operation once.
+  virtual void run_once() = 0;
 };
 
-} // namespace free_fleet
+} // namesace free_fleet
 
-#endif // INCLUDE__FREE_FLEET__TYPES_HPP
+#endif // INCLUDE__FREE_FLEET__WORKER_HPP

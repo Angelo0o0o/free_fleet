@@ -30,7 +30,7 @@ public:
 
   std::string robot_name;
 
-  std::unique_ptr<StateMonitor> state_monitor;
+  std::unique_ptr<RobotHandler> handler;
 
   std::unique_ptr<transport::Middleware> middleware;
 
@@ -78,7 +78,7 @@ auto Client::Implementation::make_validator(const nlohmann::json& schema) const
 //==============================================================================
 auto Client::make(
   const std::string& robot_name,
-  std::unique_ptr<StateMonitor> state_monitor,
+  std::unique_ptr<RobotHandler> handler,
   std::unique_ptr<transport::Middleware> middleware)
 -> std::shared_ptr<Client>
 {
@@ -92,9 +92,9 @@ auto Client::make(
   {
     return make_error_fn("Provided robot name must not be empty.");
   }
-  if (!state_monitor)
+  if (!handler)
   {
-    return make_error_fn("Provided state monitor cannot be null.");
+    return make_error_fn("Provided robot handler cannot be null.");
   }
   if (!middleware)
   {
@@ -114,7 +114,7 @@ auto Client::make(
 
   std::shared_ptr<Client> new_client(new Client);
   new_client->_pimpl->robot_name = robot_name;
-  new_client->_pimpl->state_monitor = std::move(state_monitor);
+  new_client->_pimpl->handler = std::move(handler);
   new_client->_pimpl->middleware = std::move(middleware);
   new_client->_pimpl->schema_dictionary = std::move(schema_dictionary);
   return new_client;
@@ -131,7 +131,7 @@ void Client::run_once()
 {
   auto new_state = rmf_api_msgs::schemas::robot_state;
   std::string error{};
-  if (!_pimpl->state_monitor->current_state(new_state, error))
+  if (!_pimpl->handler->current_state(new_state, error))
   {
     fferr << "Failed to obtain new state: " << error << "\n";
   }

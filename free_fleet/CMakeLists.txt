@@ -68,35 +68,35 @@ target_include_directories(free_fleet
 )
 
 # Tests
-if (BUILD_TESTING)
-  find_package(ament_cmake_catch2 REQUIRED)
-  find_package(ament_cmake_uncrustify REQUIRED)
+# if (BUILD_TESTING)
+#   find_package(ament_cmake_catch2 REQUIRED)
+#   find_package(ament_cmake_uncrustify REQUIRED)
 
-  file(GLOB_RECURSE unit_test_srcs "test/*.cpp")
+#   file(GLOB_RECURSE unit_test_srcs "test/*.cpp")
 
-  ament_add_catch2(
-    test_free_fleet test/main.cpp ${unit_test_srcs}
-    TIMEOUT 300)
-  target_link_libraries(test_free_fleet
-    free_fleet
-    rmf_utils::rmf_utils
-    # rmf_traffic::rmf_traffic
-  )
-  target_include_directories(test_free_fleet
-    PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
-  )
+#   ament_add_catch2(
+#     test_free_fleet test/main.cpp ${unit_test_srcs}
+#     TIMEOUT 300)
+#   target_link_libraries(test_free_fleet
+#     free_fleet
+#     rmf_utils::rmf_utils
+#     # rmf_traffic::rmf_traffic
+#   )
+#   target_include_directories(test_free_fleet
+#     PRIVATE
+#       $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/>
+#   )
 
-  find_file(uncrustify_config_file
-    NAMES "rmf_code_style.cfg"
-    PATHS "${rmf_utils_DIR}/../../../share/rmf_utils/")
+#   find_file(uncrustify_config_file
+#     NAMES "rmf_code_style.cfg"
+#     PATHS "${rmf_utils_DIR}/../../../share/rmf_utils/")
 
-  ament_uncrustify(
-    include src test
-    CONFIG_FILE ${uncrustify_config_file}
-    MAX_LINE_LENGTH 80
-  )
-endif()
+#   ament_uncrustify(
+#     include src test
+#     CONFIG_FILE ${uncrustify_config_file}
+#     MAX_LINE_LENGTH 80
+#   )
+# endif()
 
 ament_export_targets(free_fleet HAS_LIBRARY_TARGET)
 ament_export_dependencies(${dep_pkgs})

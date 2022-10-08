@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Open Source Robotics Foundation
+ * Copyright (C) 2022 Open Source Robotics Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
-*/
+ */
 
-#ifndef INCLUDE__FREE_FLEET__TYPES_HPP
-#define INCLUDE__FREE_FLEET__TYPES_HPP
+#ifndef INCLUDE__FREE_FLEET__TRANSPORT__MIDDLEWARE_HPP
+#define INCLUDE__FREE_FLEET__TRANSPORT__MIDDLEWARE_HPP
 
-#include <cstdint>
+#include <string>
+#include <functional>
 
 namespace free_fleet {
+namespace transport {
 
-/// Commnad Ids are represented by an unsigned 32-bit integer. This means that
-/// the manager and clients can identify over 4 billion commands, which will
-/// most likely be more than each server or robot can store.
-///
-/// TODO(AA): Handle command culling or exporting in both manager and client.
-using CommandId = uint32_t;
-
-struct Location
+class Middleware
 {
-  std::string map_name;
-  double x;
-  double y;
-  double yaw;
+public:
+
+  virtual bool publish(
+    const std::string& topic,
+    const std::string& payload,
+    std::string& error) = 0;
+
+  virtual bool subscribe(
+    const std::string& topic,
+    std::function<void(const std::string&)> callback,
+    std::string& error) = 0;
 };
 
+} // namespace transport
 } // namespace free_fleet
 
-#endif // INCLUDE__FREE_FLEET__TYPES_HPP
+#endif // INCLUDE__FREE_FLEET__TRANSPORT__MIDDLEWARE_HPP
