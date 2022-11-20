@@ -45,7 +45,7 @@ public:
     std::string& error) = 0;
 
   virtual bool follow_new_path(
-    const std::vector<Location>& path,
+    const std::vector<Goal>& path,
     RequestCompleted path_finished_callback,
     std::string& error) = 0;
 

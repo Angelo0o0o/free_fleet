@@ -53,6 +53,14 @@ target_include_directories(free_fleet_mqtt
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+add_executable(sub
+  src/sub.cpp
+)
+
+target_link_libraries(sub
+  free_fleet_mqtt
+)
+
 # Tests
 if (BUILD_TESTING)
   find_package(ament_cmake_catch2 REQUIRED)

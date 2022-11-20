@@ -32,9 +32,9 @@ class Client : public Worker
 {
 public:
 
-  static std::shared_ptr<Client> make(
+  static std::unique_ptr<Client> make(
     const std::string& robot_name,
-    std::unique_ptr<RobotHandler> handler,
+    std::shared_ptr<RobotHandler> handler,
     std::unique_ptr<transport::Middleware> middleware);
 
   /// Running the operations of the client once.

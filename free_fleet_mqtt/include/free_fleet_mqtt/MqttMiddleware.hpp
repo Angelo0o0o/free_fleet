@@ -30,7 +30,7 @@ class MqttMiddleware : public Middleware
 {
 public:
 
-  static std::shared_ptr<MqttMiddleware> make(
+  static std::unique_ptr<MqttMiddleware> make(
     const std::string& server_address,
     const std::string& client_id);
 

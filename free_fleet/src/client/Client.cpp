@@ -30,7 +30,7 @@ public:
 
   std::string robot_name;
 
-  std::unique_ptr<RobotHandler> handler;
+  std::shared_ptr<RobotHandler> handler;
 
   std::unique_ptr<transport::Middleware> middleware;
 
@@ -78,9 +78,9 @@ auto Client::Implementation::make_validator(const nlohmann::json& schema) const
 //==============================================================================
 auto Client::make(
   const std::string& robot_name,
-  std::unique_ptr<RobotHandler> handler,
+  std::shared_ptr<RobotHandler> handler,
   std::unique_ptr<transport::Middleware> middleware)
--> std::shared_ptr<Client>
+-> std::unique_ptr<Client>
 {
   auto make_error_fn = [](const std::string& error_msg)
     {
@@ -112,7 +112,7 @@ auto Client::make(
     schema_dictionary->insert({json_uri.url(), schema});
   }
 
-  std::shared_ptr<Client> new_client(new Client);
+  std::unique_ptr<Client> new_client(new Client);
   new_client->_pimpl->robot_name = robot_name;
   new_client->_pimpl->handler = std::move(handler);
   new_client->_pimpl->middleware = std::move(middleware);
@@ -129,7 +129,8 @@ Client::Client()
 //==============================================================================
 void Client::run_once()
 {
-  auto new_state = rmf_api_msgs::schemas::robot_state;
+  // auto new_state = rmf_api_msgs::schemas::robot_state;
+  auto new_state = nlohmann::json{};
   std::string error{};
   if (!_pimpl->handler->current_state(new_state, error))
   {
@@ -139,18 +140,18 @@ void Client::run_once()
   {
     error.clear();
 
-    try
-    {
-      static const auto validator =
-        _pimpl->make_validator(rmf_api_msgs::schemas::robot_state);
-      validator.validate(new_state);
-    }
-    catch (const std::exception& e)
-    {
-      fferr << "Malformed outgoing robot state json message: "
-            << e.what() << "\nMessage:\n" << new_state.dump() << "\n";
-      return;
-    }
+    // try
+    // {
+    //   static const auto validator =
+    //     _pimpl->make_validator(rmf_api_msgs::schemas::robot_state);
+    //   validator.validate(new_state);
+    // }
+    // catch (const std::exception& e)
+    // {
+    //   fferr << "Malformed outgoing robot state json message: "
+    //         << e.what() << "\nMessage:\n" << new_state.dump() << "\n";
+    //   return;
+    // }
 
     if (!_pimpl->middleware->publish("state_topic_name",
       new_state.dump(), error))

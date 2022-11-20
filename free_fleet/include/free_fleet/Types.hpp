@@ -18,6 +18,7 @@
 #ifndef INCLUDE__FREE_FLEET__TYPES_HPP
 #define INCLUDE__FREE_FLEET__TYPES_HPP
 
+#include <string>
 #include <cstdint>
 
 namespace free_fleet {
@@ -35,6 +36,12 @@ struct Location
   double x;
   double y;
   double yaw;
+};
+
+struct Goal
+{
+  Location location;
+  double speed_limit;
 };
 
 } // namespace free_fleet

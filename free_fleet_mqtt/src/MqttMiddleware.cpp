@@ -50,7 +50,7 @@ MqttMiddleware::~MqttMiddleware()
   }
 }
 
-std::shared_ptr<MqttMiddleware> MqttMiddleware::make(
+std::unique_ptr<MqttMiddleware> MqttMiddleware::make(
   const std::string& server_address,
   const std::string& client_id)
 {
@@ -78,7 +78,7 @@ std::shared_ptr<MqttMiddleware> MqttMiddleware::make(
   }
   ffinfo << "Connected to MQTT server: " << server_address << ".\n";
 
-  std::shared_ptr<MqttMiddleware> new_middleware(new MqttMiddleware);
+  std::unique_ptr<MqttMiddleware> new_middleware(new MqttMiddleware);
   new_middleware->_pimpl->cli = std::move(cli);
   new_middleware->_pimpl->cb_handler = std::move(cb_handler);
   return new_middleware;
