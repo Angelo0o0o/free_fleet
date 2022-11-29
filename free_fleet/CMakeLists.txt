@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7.0)
-project(free_fleet VERSION 0.1.0 LANGUAGES C CXX)
+project(free_fleet)
 
 # Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
@@ -30,6 +30,7 @@ set(dep_pkgs
   rmf_api_msgs
   nlohmann_json
   nlohmann_json_schema_validator_vendor
+  nlohmann_json_schema_validator
 )
 foreach(pkg ${dep_pkgs})
   find_package(${pkg} REQUIRED)
@@ -50,10 +51,10 @@ add_library(free_fleet SHARED
 
 target_link_libraries(free_fleet
   PUBLIC
-    rmf_api_msgs::rmf_api_msgs
     # rmf_traffic::rmf_traffic
     rmf_utils::rmf_utils
     Threads::Threads
+    rmf_api_msgs::rmf_api_msgs
     nlohmann_json::nlohmann_json
     nlohmann_json_schema_validator
 )
@@ -62,7 +63,6 @@ target_include_directories(free_fleet
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  PRIVATE
     ${rmf_api_msgs_INCLUDE_DIRS}
     ${nlohmann_json_schema_validator_INCLUDE_DIRS}
 )

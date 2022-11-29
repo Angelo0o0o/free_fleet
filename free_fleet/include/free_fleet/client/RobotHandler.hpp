@@ -23,7 +23,6 @@
 #include <optional>
 
 #include <nlohmann/json.hpp>
-#include <nlohmann/json-schema.hpp>
 
 #include <free_fleet/Types.hpp>
 
