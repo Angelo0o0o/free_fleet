@@ -20,6 +20,7 @@
 
 #include <string>
 #include <cstdint>
+#include <optional>
 
 namespace free_fleet {
 
@@ -41,7 +42,7 @@ struct Location
 struct Goal
 {
   Location location;
-  double speed_limit;
+  std::optional<double> speed_limit;
 };
 
 } // namespace free_fleet

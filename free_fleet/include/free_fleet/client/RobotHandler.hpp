@@ -36,25 +36,28 @@ public:
     nlohmann::json& state,
     std::string& error) const = 0;
 
-  using RequestCompleted = std::function<void()>;
+  enum class CompleteState : uint8_t
+  {
+    Success,
+    Failure,
+    Cancelled
+  };
 
   virtual bool relocalize(
     const Location& new_location,
-    RequestCompleted relocalize_finished_callback,
     std::string& error) = 0;
+
+  using RequestCompleted =
+    std::function<void(CompleteState, const std::string& error)>;
 
   virtual bool follow_new_path(
     const std::vector<Goal>& path,
     RequestCompleted path_finished_callback,
     std::string& error) = 0;
 
-  virtual bool stop(
-    RequestCompleted stopped_callback,
-    std::string& error) = 0;
+  virtual bool stop(std::string& error) = 0;
 
-  virtual bool resume(
-    RequestCompleted resumed_callback,
-    std::string& error) = 0;
+  virtual bool resume(std::string& error) = 0;
 
   virtual bool custom_command(
     const nlohmann::json& details,
