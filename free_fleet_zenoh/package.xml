@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>free_fleet_zenoh</name>
+  <version>1.0.0</version>
+  <description>Free Fleet zenoh middleware implementation</description>
+  <maintainer email="aaron@openrobotics.org">Aaron Chong</maintainer>
+  <license>Apache 2.0</license>
+  <author email="aaron@openrobotics.org">Aaron Chong</author>
+
+  <depend>free_fleet</depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

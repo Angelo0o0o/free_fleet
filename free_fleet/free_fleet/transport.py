@@ -13,5 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .messages import *
-from .transport import *
+from abc import ABC, abstractmethod
+from typing import Callable
+
+
+class Middleware(ABC):
+    @abstractmethod
+    def publish(self, topic: str, payload: str) -> bool:
+        pass
+
+    @abstractmethod
+    def subscribe(self, topic: str, callback: Callable[[str], None]) -> bool:
+        pass

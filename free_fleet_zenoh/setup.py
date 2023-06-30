@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 
-package_name = 'free_fleet'
+package_name = 'free_fleet_zenoh'
 
 
 setup(
     name=package_name,
     version='0.1.0',
-    packages=find_packages(include=[package_name]),
+    packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -30,13 +30,14 @@ setup(
     ],
     install_requires=[
         'setuptools',
-        'spdlog'
+        'spdlog',
+        'eclipse-zenoh'
     ],
     zip_safe=True,
     maintainer='aaron',
     maintainer_email='aaronchongth@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Middleware implementation of free fleet using eclipse-zenoh',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
