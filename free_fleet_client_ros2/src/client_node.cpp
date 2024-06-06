@@ -408,12 +408,20 @@ bool ClientNode::read_mode_request()
 
 bool ClientNode::read_path_request()
 {
+  
   messages::PathRequest path_request;
+  //RCLCPP_INFO(get_logger(), "HERE"); 
+  //RCLCPP_INFO(get_logger(), "read_path_request: %d",fields.client->read_path_request(path_request)); 
+  //RCLCPP_INFO(get_logger(), "is_valid_request: %d",is_valid_request(path_request.fleet_name, path_request.robot_name,path_request.task_id));
+  //RCLCPP_INFO(get_logger(), "fleet_name: %s", path_request.fleet_name.c_str());
+  //RCLCPP_INFO(get_logger(), "robot_name: %s", path_request.robot_name.c_str());
+  //RCLCPP_INFO(get_logger(), "task_id: %s", path_request.task_id.c_str());
   if (fields.client->read_path_request(path_request) &&
       is_valid_request(
           path_request.fleet_name, path_request.robot_name,
           path_request.task_id))
   {
+    //RCLCPP_INFO(get_logger(), "HERE"); 
     RCLCPP_INFO(get_logger(), "received a Path command of size %lu.", path_request.path.size());
 
     if (path_request.path.size() <= 0)
@@ -661,6 +669,14 @@ void ClientNode::handle_requests()
     {
       RCLCPP_INFO(get_logger(), "sending next goal.");
       fields.move_base_client->async_send_goal(goal_path.front().goal, send_goal_options);
+
+      for (int i = 0; i < goal_path.size(); ++i)
+      {
+        RCLCPP_INFO(get_logger(), "%d = %f\n", i, goal_path[i].goal.pose.pose.position.x );
+        RCLCPP_INFO(get_logger(), "%d = %f\n", i, goal_path[i].goal.pose.pose.position.y );
+        //std::cout << i << " " << goal_path[i].goal.pose.pose.position.x << "\n";
+        //std::cout << i << " " << goal_path[i].goal.pose.pose.position.y << "\n";
+      }
       goal_path.front().sent = true;
       return;
     }
